@@ -3,13 +3,13 @@ using UnityEngine.AI;
 
 public class NPCMovement : MonoBehaviour
 {
-    private enum State { Chase, Flee, StandStill }
+    private enum State { Chase, Flee, ProximityChase }
     private State currentState;
     private NavMeshAgent agent;
     public Transform player;
 
     public float chaseDistance = 10f;  // Distance to start chasing
-    public KeyCode toggleKey = KeyCode.T; // Key to toggle behavior
+    public float escapeDistance = 15f; // Distance at which the player escapes
 
     private Vector3 startPosition;
 
@@ -18,11 +18,26 @@ public class NPCMovement : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         player = GameObject.FindGameObjectWithTag("Player").transform;
         startPosition = transform.position;
-        currentState = State.StandStill;
+        currentState = State.ProximityChase;
     }
 
     void Update()
     {
+        // Check for state change key presses
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            SetState(State.Chase);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            SetState(State.Flee);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            SetState(State.ProximityChase);
+        }
+
+        // Execute current state behavior
         switch (currentState)
         {
             case State.Chase:
@@ -31,15 +46,16 @@ public class NPCMovement : MonoBehaviour
             case State.Flee:
                 FleePlayer();
                 break;
-            case State.StandStill:
-                StandStill();
+            case State.ProximityChase:
+                ProximityChase();
                 break;
         }
+    }
 
-        if (Input.GetKeyDown(toggleKey))
-        {
-            ToggleState();
-        }
+    private void SetState(State newState)
+    {
+        currentState = newState;
+        Debug.Log($"NPC Mode: {newState}");
     }
 
     private void ChasePlayer()
@@ -54,34 +70,22 @@ public class NPCMovement : MonoBehaviour
         agent.SetDestination(newTarget);
     }
 
-    private void StandStill()
+    private void ProximityChase()
     {
-        if (Vector3.Distance(transform.position, player.position) <= chaseDistance)
+        float playerDistance = Vector3.Distance(transform.position, player.position);
+
+        if (playerDistance <= chaseDistance)
         {
-            currentState = State.Chase;
+            agent.SetDestination(player.position);
         }
-        else
+        else if (playerDistance > escapeDistance)
         {
             agent.SetDestination(startPosition);
         }
     }
-
-    private void ToggleState()
-    {
-        currentState = (State)(((int)currentState + 1) % 3);
-        switch (currentState)
-        {
-            case State.Chase:
-                Debug.Log("NPC Mode: Chase");
-                break;
-            case State.Flee:
-                Debug.Log("NPC Mode: Flee");
-                break;
-            case State.StandStill:
-                Debug.Log("NPC Mode: Stand Still");
-                break;
-        }
-    }
 }
+
+
+
 
 
