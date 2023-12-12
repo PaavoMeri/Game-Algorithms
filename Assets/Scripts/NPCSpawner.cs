@@ -13,6 +13,12 @@ public class NPCSpawner : MonoBehaviour
         {
             SpawnNPC();
         }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Application.Quit();
+            Debug.Log("exited the game");
+        }
     }
 
     void SpawnNPC()
