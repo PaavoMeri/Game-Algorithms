@@ -172,3 +172,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 1342029326903924325, guid: 41e90b4a9adc7724d8bc941f043a0dc4, type: 3}
+  chaseDistance: 10
+  toggleKey: 116
